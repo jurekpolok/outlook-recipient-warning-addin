@@ -10,10 +10,6 @@ var INTERNAL_DOMAINS = [
     "bcc-crew.com"
 ];
 
-Office.onReady(function() {
-    // Office is ready
-});
-
 function isInternalEmail(email) {
     if (!email) return true;
     var emailLower = email.toLowerCase();
@@ -71,4 +67,7 @@ function onMessageSendHandler(event) {
     });
 }
 
-Office.actions.associate("onMessageSendHandler", onMessageSendHandler);
+// Register handler after Office is ready
+Office.onReady(function() {
+    Office.actions.associate("onMessageSendHandler", onMessageSendHandler);
+});
