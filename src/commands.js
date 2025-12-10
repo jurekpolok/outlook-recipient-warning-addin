@@ -10,11 +10,6 @@ const INTERNAL_DOMAINS = [
     "bcc-crew.com"
 ];
 
-Office.onReady(() => {
-    // Register the function with Office
-    Office.actions.associate("onMessageSendHandler", onMessageSendHandler);
-});
-
 /**
  * Check if an email address is external (not from internal domains)
  */
@@ -50,16 +45,14 @@ function getRecipientsAsync(recipientField) {
  * Handler for OnMessageSend event
  * This runs automatically when user clicks Send
  */
-async function onMessageSendHandler(event) {
-    try {
-        const item = Office.context.mailbox.item;
+function onMessageSendHandler(event) {
+    const item = Office.context.mailbox.item;
 
-        // Get To and CC recipients
-        const [toRecipients, ccRecipients] = await Promise.all([
-            getRecipientsAsync(item.to),
-            getRecipientsAsync(item.cc)
-        ]);
-
+    // Get To and CC recipients using Promise.all
+    Promise.all([
+        getRecipientsAsync(item.to),
+        getRecipientsAsync(item.cc)
+    ]).then(([toRecipients, ccRecipients]) => {
         const totalToCc = toRecipients.length + ccRecipients.length;
 
         // Check if threshold exceeded
@@ -70,13 +63,13 @@ async function onMessageSendHandler(event) {
                 isExternalEmail(getEmailAddress(r))
             ).length;
 
-            let warningMessage = `You are sending to ${totalToCc} recipients in To/CC fields.`;
+            let warningMessage = "You are sending to " + totalToCc + " recipients in To/CC fields.";
 
             if (externalCount > 0) {
-                warningMessage += ` ${externalCount} of them are external.`;
+                warningMessage += " " + externalCount + " of them are external.";
             }
 
-            warningMessage += `\n\nConsider using BCC for external recipients to protect their email addresses from being disclosed to all recipients.\n\nDo you want to send anyway?`;
+            warningMessage += "\n\nConsider using BCC for external recipients to protect their email addresses from being disclosed to all recipients.";
 
             // Show dialog with warning - SoftBlock allows user to override
             event.completed({
@@ -87,13 +80,16 @@ async function onMessageSendHandler(event) {
             // Under threshold, allow send
             event.completed({ allowEvent: true });
         }
-
-    } catch (error) {
+    }).catch((error) => {
         console.error("Error in onMessageSendHandler:", error);
         // On error, allow send to not block the user
         event.completed({ allowEvent: true });
-    }
+    });
 }
 
-// Make function globally available
-globalThis.onMessageSendHandler = onMessageSendHandler;
+// Initialize Office
+Office.onReady();
+
+// CRITICAL: Register the event handler OUTSIDE Office.onReady()
+// This maps the manifest's FunctionName to the actual JavaScript function
+Office.actions.associate("onMessageSendHandler", onMessageSendHandler);
