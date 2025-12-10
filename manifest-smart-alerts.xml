@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <OfficeApp xmlns="http://schemas.microsoft.com/office/appforoffice/1.1" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:bt="http://schemas.microsoft.com/office/officeappbasictypes/1.0" xsi:type="MailApp">
   <Id>b2c3d4e5-f6a7-8901-bcde-f12345678901</Id>
-  <Version>1.1.0.0</Version>
+  <Version>1.2.0.0</Version>
   <ProviderName>BCC</ProviderName>
   <DefaultLocale>en-US</DefaultLocale>
   <DisplayName DefaultValue="Recipient Privacy Warning"/>
@@ -41,6 +41,9 @@
       </Requirements>
       <Hosts>
         <Host xsi:type="MailHost">
+          <Runtimes>
+            <Runtime resid="residRuntime"/>
+          </Runtimes>
           <DesktopFormFactor>
             <FunctionFile resid="residFunctionFile"/>
             <ExtensionPoint xsi:type="MessageComposeCommandSurface">
@@ -69,7 +72,7 @@
               <LaunchEvents>
                 <LaunchEvent Type="OnMessageSend" FunctionName="onMessageSendHandler" SendMode="PromptUser"/>
               </LaunchEvents>
-              <SourceLocation resid="residFunctionFile"/>
+              <SourceLocation resid="residRuntime"/>
             </ExtensionPoint>
           </DesktopFormFactor>
         </Host>
@@ -81,6 +84,7 @@
           <bt:Image id="residIcon80" DefaultValue="https://jurekpolok.github.io/outlook-recipient-warning-addin/assets/icon-80.png"/>
         </bt:Images>
         <bt:Urls>
+          <bt:Url id="residRuntime" DefaultValue="https://jurekpolok.github.io/outlook-recipient-warning-addin/src/commands.html"/>
           <bt:Url id="residFunctionFile" DefaultValue="https://jurekpolok.github.io/outlook-recipient-warning-addin/src/commands.html"/>
           <bt:Url id="residTaskpaneUrl" DefaultValue="https://jurekpolok.github.io/outlook-recipient-warning-addin/src/taskpane.html"/>
         </bt:Urls>
