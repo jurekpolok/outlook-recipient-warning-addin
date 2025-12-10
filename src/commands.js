@@ -11,7 +11,8 @@ const INTERNAL_DOMAINS = [
 ];
 
 Office.onReady(() => {
-    // Ready
+    // Register the function with Office
+    Office.actions.associate("onMessageSendHandler", onMessageSendHandler);
 });
 
 /**
@@ -94,5 +95,5 @@ async function onMessageSendHandler(event) {
     }
 }
 
-// Register the function with Office
-Office.actions.associate("onMessageSendHandler", onMessageSendHandler);
+// Make function globally available
+globalThis.onMessageSendHandler = onMessageSendHandler;
