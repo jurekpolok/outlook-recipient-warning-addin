@@ -1,8 +1,13 @@
 /*
- * Recipient Privacy Warning - Outlook Add-in v2.1.0
+ * Recipient Privacy Warning - Outlook Add-in v2.2.0
  * Warns when sending to more than 5 external recipients
  * ECMAScript 2016 compatible - no ternary, no ||, no async/await
  */
+
+// Call Office.onReady to satisfy the Office.js requirement
+Office.onReady(function() {
+    // Intentionally empty - event handlers don't need initialization here
+});
 
 // Configuration
 var RECIPIENT_THRESHOLD = 5;
