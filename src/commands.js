@@ -67,7 +67,7 @@ function onMessageSendHandler(event) {
     });
 }
 
-// Register handler after Office is ready
-Office.onReady(function() {
+// Use Office.initialize for compatibility
+Office.initialize = function() {
     Office.actions.associate("onMessageSendHandler", onMessageSendHandler);
-});
+};
