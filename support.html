@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Support - Recipient Privacy Warning Add-in</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 40px 20px;
+            line-height: 1.6;
+            color: #333;
+        }
+        h1 { color: #0078d4; }
+        h2 { color: #444; margin-top: 30px; }
+        p { margin: 15px 0; }
+        .faq { background: #f5f5f5; padding: 20px; border-radius: 8px; margin: 20px 0; }
+        .faq h3 { margin-top: 0; color: #0078d4; }
+        a { color: #0078d4; }
+    </style>
+</head>
+<body>
+    <h1>Support</h1>
+    <p>Thank you for using the Recipient Privacy Warning Add-in!</p>
+
+    <h2>How to Use</h2>
+    <ol>
+        <li>Compose a new email in Outlook</li>
+        <li>Add recipients to the To, CC, or BCC fields</li>
+        <li>Click the <strong>"Check Recipients"</strong> button in the ribbon</li>
+        <li>Review the recipient count and any warnings displayed</li>
+        <li>If warned, consider moving external recipients to BCC</li>
+    </ol>
+
+    <h2>Frequently Asked Questions</h2>
+
+    <div class="faq">
+        <h3>Why should I use BCC for external recipients?</h3>
+        <p>When you add recipients to To or CC, all recipients can see each other's email addresses. Using BCC (Blind Carbon Copy) hides recipients from each other, protecting their privacy and complying with data protection regulations like GDPR.</p>
+    </div>
+
+    <div class="faq">
+        <h3>What triggers the warning?</h3>
+        <p>The add-in warns you when you have more than 5 recipients in the To and CC fields combined. This threshold helps identify mass emails that might benefit from using BCC.</p>
+    </div>
+
+    <div class="faq">
+        <h3>What counts as an "external" recipient?</h3>
+        <p>External recipients are email addresses that don't belong to your organization's configured domains. Internal recipients are those with email addresses from your company's domain.</p>
+    </div>
+
+    <div class="faq">
+        <h3>The add-in isn't showing in my Outlook. What should I do?</h3>
+        <p>Try these steps:</p>
+        <ul>
+            <li>Restart Outlook</li>
+            <li>Check if the add-in is enabled in File → Manage Add-ins</li>
+            <li>Contact your IT administrator to ensure the add-in is deployed to your account</li>
+        </ul>
+    </div>
+
+    <h2>Report an Issue</h2>
+    <p>If you encounter any problems or have suggestions for improvement, please open an issue on our GitHub repository:</p>
+    <p><a href="https://github.com/jurekpolok/outlook-recipient-warning-addin/issues">https://github.com/jurekpolok/outlook-recipient-warning-addin/issues</a></p>
+
+    <h2>Contact</h2>
+    <p>For support inquiries, please use the GitHub issues page linked above.</p>
+</body>
+</html>

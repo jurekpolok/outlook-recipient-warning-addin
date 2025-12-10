@@ -8,7 +8,7 @@
   <Description DefaultValue="Automatically warns when adding multiple recipients and suggests using BCC."/>
   <IconUrl DefaultValue="https://jurekpolok.github.io/outlook-recipient-warning-addin/assets/icon-64.png"/>
   <HighResolutionIconUrl DefaultValue="https://jurekpolok.github.io/outlook-recipient-warning-addin/assets/icon-128.png"/>
-  <SupportUrl DefaultValue="https://jurekpolok.github.io/outlook-recipient-warning-addin/"/>
+  <SupportUrl DefaultValue="https://jurekpolok.github.io/outlook-recipient-warning-addin/support.html"/>
   <AppDomains>
     <AppDomain>https://jurekpolok.github.io</AppDomain>
   </AppDomains>
