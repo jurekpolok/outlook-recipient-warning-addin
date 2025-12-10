@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Recipient Privacy Check</title>
+    <link rel="stylesheet" href="taskpane.css">
+    <script src="https://appsforoffice.microsoft.com/lib/1.1/hosted/office.js"></script>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Recipient Privacy Check</h1>
+        </header>
+
+        <main>
+            <div id="status-container" class="status-container">
+                <div id="status-icon" class="status-icon ok">&#10003;</div>
+                <p id="status-message" class="status-message">Checking recipients...</p>
+            </div>
+
+            <div id="recipient-details" class="recipient-details hidden">
+                <div class="detail-row">
+                    <span class="label">To:</span>
+                    <span id="to-count" class="count">0</span>
+                </div>
+                <div class="detail-row">
+                    <span class="label">CC:</span>
+                    <span id="cc-count" class="count">0</span>
+                </div>
+                <div class="detail-row">
+                    <span class="label">BCC:</span>
+                    <span id="bcc-count" class="count">0</span>
+                </div>
+                <div class="detail-row total">
+                    <span class="label">Total (To + CC):</span>
+                    <span id="total-count" class="count">0</span>
+                </div>
+            </div>
+
+            <div id="warning-box" class="warning-box hidden">
+                <div class="warning-icon">&#9888;</div>
+                <div class="warning-content">
+                    <h3>Privacy Recommendation</h3>
+                    <p>You have added more than 5 recipients in the To and CC fields.</p>
+                    <p><strong>Consider using the BCC field</strong> for external recipients to protect their email addresses from being disclosed to all other recipients.</p>
+                </div>
+            </div>
+
+            <div id="external-warning" class="external-warning hidden">
+                <div class="info-icon">&#8505;</div>
+                <div class="info-content">
+                    <p><span id="external-count">0</span> external recipient(s) detected. Moving them to BCC prevents email address exposure.</p>
+                </div>
+            </div>
+
+            <button id="refresh-btn" class="refresh-btn">Refresh Check</button>
+        </main>
+
+        <footer>
+            <p class="footer-text">Protecting recipient privacy</p>
+        </footer>
+    </div>
+
+    <script src="taskpane.js"></script>
+</body>
+</html>
