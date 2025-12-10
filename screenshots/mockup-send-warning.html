@@ -1,0 +1,260 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Screenshot Mockup - Send Warning Dialog</title>
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #f3f3f3;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            padding: 20px;
+        }
+        .outlook-mockup {
+            width: 1280px;
+            height: 720px;
+            background: #fff;
+            border-radius: 8px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.15);
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            position: relative;
+        }
+        .overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0,0,0,0.4);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 100;
+        }
+        .dialog {
+            background: #fff;
+            border-radius: 8px;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.3);
+            width: 480px;
+            overflow: hidden;
+        }
+        .dialog-header {
+            background: #fff4ce;
+            padding: 20px 24px;
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            border-bottom: 1px solid #ffb900;
+        }
+        .dialog-icon {
+            font-size: 32px;
+        }
+        .dialog-title {
+            font-size: 18px;
+            font-weight: 600;
+            color: #d83b01;
+        }
+        .dialog-body {
+            padding: 24px;
+        }
+        .dialog-body p {
+            font-size: 14px;
+            color: #333;
+            line-height: 1.6;
+            margin-bottom: 16px;
+        }
+        .dialog-body ul {
+            margin: 16px 0;
+            padding-left: 24px;
+        }
+        .dialog-body li {
+            font-size: 14px;
+            color: #333;
+            margin-bottom: 8px;
+        }
+        .dialog-footer {
+            padding: 16px 24px;
+            display: flex;
+            justify-content: flex-end;
+            gap: 12px;
+            background: #f3f3f3;
+        }
+        .btn {
+            padding: 10px 24px;
+            border-radius: 4px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            border: none;
+        }
+        .btn-primary {
+            background: #0078d4;
+            color: white;
+        }
+        .btn-secondary {
+            background: #fff;
+            color: #333;
+            border: 1px solid #8a8886;
+        }
+        .title-bar {
+            background: #0078d4;
+            color: white;
+            padding: 8px 16px;
+            font-size: 13px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        .title-bar .icon { font-size: 16px; }
+        .ribbon {
+            background: #f3f2f1;
+            border-bottom: 1px solid #e1dfdd;
+            padding: 8px 16px;
+            display: flex;
+            gap: 24px;
+        }
+        .ribbon-group {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 4px;
+        }
+        .ribbon-btn {
+            background: #0078d4;
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 4px;
+            font-size: 12px;
+            cursor: pointer;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 4px;
+        }
+        .ribbon-btn .btn-icon { font-size: 20px; }
+        .ribbon-label { font-size: 10px; color: #666; }
+        .main-area {
+            display: flex;
+            flex: 1;
+        }
+        .email-compose {
+            flex: 1;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            filter: blur(2px);
+        }
+        .email-field {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 8px 0;
+            border-bottom: 1px solid #e1dfdd;
+        }
+        .email-field label {
+            width: 50px;
+            color: #666;
+            font-size: 14px;
+        }
+        .email-field .recipients {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 6px;
+            flex: 1;
+        }
+        .recipient-chip {
+            background: #e1dfdd;
+            padding: 4px 10px;
+            border-radius: 16px;
+            font-size: 12px;
+            color: #333;
+        }
+        .recipient-chip.external {
+            background: #fff4ce;
+            border: 1px solid #ffb900;
+        }
+        .email-body {
+            flex: 1;
+            padding: 16px 0;
+            color: #333;
+            font-size: 14px;
+            line-height: 1.6;
+        }
+    </style>
+</head>
+<body>
+    <div class="outlook-mockup">
+        <div class="title-bar">
+            <span class="icon">📧</span>
+            <span>New Message - Outlook</span>
+        </div>
+        <div class="ribbon">
+            <div class="ribbon-group">
+                <button class="ribbon-btn">
+                    <span class="btn-icon">🔍</span>
+                    <span>Check Recipients</span>
+                </button>
+                <span class="ribbon-label">Privacy Check</span>
+            </div>
+        </div>
+        <div class="main-area">
+            <div class="email-compose">
+                <div class="email-field">
+                    <label>To:</label>
+                    <div class="recipients">
+                        <span class="recipient-chip">john@bcc.no</span>
+                        <span class="recipient-chip">anna@bcc.media</span>
+                        <span class="recipient-chip external">mike@gmail.com</span>
+                        <span class="recipient-chip external">sarah@outlook.com</span>
+                        <span class="recipient-chip external">david@yahoo.com</span>
+                        <span class="recipient-chip external">lisa@company.org</span>
+                    </div>
+                </div>
+                <div class="email-field">
+                    <label>CC:</label>
+                    <div class="recipients">
+                        <span class="recipient-chip">peter@brunstad.tv</span>
+                        <span class="recipient-chip external">emma@external.com</span>
+                    </div>
+                </div>
+                <div class="email-field">
+                    <label>Subject:</label>
+                    <div class="recipients" style="color: #333;">Team Update - Q4 Planning</div>
+                </div>
+                <div class="email-body">
+                    <p>Hi everyone,</p>
+                    <br>
+                    <p>I wanted to share the latest updates on our Q4 planning...</p>
+                </div>
+            </div>
+        </div>
+        <div class="overlay">
+            <div class="dialog">
+                <div class="dialog-header">
+                    <span class="dialog-icon">⚠️</span>
+                    <span class="dialog-title">Privacy Warning</span>
+                </div>
+                <div class="dialog-body">
+                    <p><strong>You are sending to 8 recipients in To/CC fields.</strong></p>
+                    <p>5 of them are external recipients.</p>
+                    <p>Consider using <strong>BCC</strong> for external recipients to protect their email addresses from being disclosed to all recipients.</p>
+                    <p style="color: #666; font-size: 13px; margin-top: 20px;">Do you want to send anyway?</p>
+                </div>
+                <div class="dialog-footer">
+                    <button class="btn btn-secondary">Don't Send</button>
+                    <button class="btn btn-primary">Send Anyway</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
