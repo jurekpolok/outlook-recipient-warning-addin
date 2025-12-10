@@ -13,10 +13,10 @@ const INTERNAL_DOMAINS = [
 
 Office.onReady((info) => {
     if (info.host === Office.HostType.Outlook) {
-        document.getElementById("refresh-btn").onclick = checkRecipients;
+        // Initial check
         checkRecipients();
 
-        // Set up event listener for recipient changes if available
+        // Set up event listener for recipient changes - updates automatically
         if (Office.context.mailbox.item.addHandlerAsync) {
             Office.context.mailbox.item.addHandlerAsync(
                 Office.EventType.RecipientsChanged,
