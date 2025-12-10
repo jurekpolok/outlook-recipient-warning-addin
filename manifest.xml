@@ -24,7 +24,6 @@
     <Form xsi:type="ItemEdit">
       <DesktopSettings>
         <SourceLocation DefaultValue="https://jurekpolok.github.io/outlook-recipient-warning-addin/src/taskpane.html"/>
-        <RequestedHeight>450</RequestedHeight>
       </DesktopSettings>
     </Form>
   </FormSettings>
