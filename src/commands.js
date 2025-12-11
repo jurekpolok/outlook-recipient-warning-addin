@@ -1,6 +1,6 @@
 /*
- * Recipient Privacy Warning - Outlook Add-in v2.2.0
- * Warns when sending to more than 5 external recipients
+ * Recipient Privacy Warning - Outlook Add-in v2.5.0
+ * Warns when sending to more than 10 recipients AND at least one is external
  * ECMAScript 2016 compatible - no ternary, no ||, no async/await
  */
 
@@ -10,7 +10,7 @@ Office.onReady(function() {
 });
 
 // Configuration
-var RECIPIENT_THRESHOLD = 5;
+var RECIPIENT_THRESHOLD = 10;
 var INTERNAL_DOMAINS = [
     "bcc.no",
     "bcc.media",
@@ -113,10 +113,13 @@ function onMessageSendHandler(event) {
                 }
             }
 
-            if (externalCount > RECIPIENT_THRESHOLD) {
+            // Only prompt if BOTH conditions are met:
+            // 1. Total recipients > 10
+            // 2. At least one external recipient
+            if (allRecipients.length > RECIPIENT_THRESHOLD && externalCount > 0) {
                 event.completed({
                     allowEvent: false,
-                    errorMessage: "You are sending to " + externalCount + " external recipients in To/CC fields. Consider moving some recipients to BCC to protect their email addresses from being shared with all recipients."
+                    errorMessage: "You are sending to " + allRecipients.length + " recipients (" + externalCount + " external) in To/CC fields. Consider moving some recipients to BCC to protect their email addresses from being shared with all recipients."
                 });
             } else {
                 event.completed({ allowEvent: true });
