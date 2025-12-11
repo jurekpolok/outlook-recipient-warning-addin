@@ -1,7 +1,7 @@
 /* global Office */
 
 // Configuration
-const RECIPIENT_THRESHOLD = 5;
+const RECIPIENT_THRESHOLD = 10;
 const INTERNAL_DOMAINS = [
     // Add your organization's internal email domains here
     "bcc.no",
@@ -91,30 +91,32 @@ async function checkRecipients() {
         document.getElementById("total-count").textContent = totalToCc;
         recipientDetails.classList.remove("hidden");
 
-        // Check threshold
-        if (totalToCc > RECIPIENT_THRESHOLD) {
+        // Check threshold: warn only if >10 recipients AND at least 1 external
+        if (totalToCc > RECIPIENT_THRESHOLD && externalCount > 0) {
             // Show warning
             statusIcon.innerHTML = "&#9888;";
             statusIcon.className = "status-icon warning";
-            statusMessage.textContent = `Warning: ${totalToCc} recipients in To/CC fields`;
+            statusMessage.textContent = `Warning: ${totalToCc} recipients (${externalCount} external)`;
             warningBox.classList.remove("hidden");
 
-            // Show external recipients info if any
-            if (externalCount > 0) {
-                document.getElementById("external-count").textContent = externalCount;
-                externalWarning.classList.remove("hidden");
-            }
+            // Show external recipients info
+            document.getElementById("external-count").textContent = externalCount;
+            externalWarning.classList.remove("hidden");
 
             // Show notification
             showNotification(
                 "Privacy Warning",
-                `You have ${totalToCc} recipients in To/CC. Consider using BCC for external recipients to protect their privacy.`
+                `You have ${totalToCc} recipients (${externalCount} external) in To/CC. Consider using BCC for external recipients to protect their privacy.`
             );
         } else {
-            // All good
+            // All good - either under threshold or all internal
             statusIcon.innerHTML = "&#10003;";
             statusIcon.className = "status-icon ok";
-            statusMessage.textContent = `${totalToCc} recipient(s) in To/CC - OK`;
+            if (totalToCc > RECIPIENT_THRESHOLD) {
+                statusMessage.textContent = `${totalToCc} recipient(s) - all internal, OK`;
+            } else {
+                statusMessage.textContent = `${totalToCc} recipient(s) in To/CC - OK`;
+            }
         }
 
     } catch (error) {
