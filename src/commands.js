@@ -12,6 +12,7 @@ Office.onReady(function() {
 // Configuration
 var RECIPIENT_THRESHOLD = 10;
 var EXTERNAL_THRESHOLD = 5;
+var TIMEOUT_MS = 5000;
 var INTERNAL_DOMAINS = [
     "bcc.no",
     "bcc.media",
@@ -69,12 +70,38 @@ function getEmailAddress(recipient) {
  */
 function onMessageSendHandler(event) {
     var mailboxItem = Office.context.mailbox.item;
+    var eventCompleted = false;
+
+    // Timeout wrapper - allow send after 5 seconds if something hangs
+    var timeoutId = setTimeout(function() {
+        if (!eventCompleted) {
+            eventCompleted = true;
+            event.completed({ allowEvent: true });
+        }
+    }, TIMEOUT_MS);
+
+    /**
+     * Safely complete the event (only once)
+     */
+    function completeEvent(options) {
+        if (!eventCompleted) {
+            eventCompleted = true;
+            clearTimeout(timeoutId);
+            event.completed(options);
+        }
+    }
+
+    // Safety check for mailboxItem
+    if (!mailboxItem) {
+        completeEvent({ allowEvent: true });
+        return;
+    }
 
     mailboxItem.to.getAsync(function(toResult) {
         var toRecipients;
 
         if (toResult.status !== Office.AsyncResultStatus.Succeeded) {
-            event.completed({ allowEvent: true });
+            completeEvent({ allowEvent: true });
             return;
         }
 
@@ -92,7 +119,7 @@ function onMessageSendHandler(event) {
             var email;
 
             if (ccResult.status !== Office.AsyncResultStatus.Succeeded) {
-                event.completed({ allowEvent: true });
+                completeEvent({ allowEvent: true });
                 return;
             }
 
@@ -129,12 +156,12 @@ function onMessageSendHandler(event) {
             }
 
             if (shouldWarn) {
-                event.completed({
+                completeEvent({
                     allowEvent: false,
                     errorMessage: warningMessage
                 });
             } else {
-                event.completed({ allowEvent: true });
+                completeEvent({ allowEvent: true });
             }
         });
     });
