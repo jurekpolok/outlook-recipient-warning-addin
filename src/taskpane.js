@@ -2,6 +2,7 @@
 
 // Configuration
 const RECIPIENT_THRESHOLD = 10;
+const EXTERNAL_THRESHOLD = 5;
 const INTERNAL_DOMAINS = [
     // Add your organization's internal email domains here
     "bcc.no",
@@ -91,12 +92,28 @@ async function checkRecipients() {
         document.getElementById("total-count").textContent = totalToCc;
         recipientDetails.classList.remove("hidden");
 
-        // Check threshold: warn only if >10 recipients AND at least 1 external
-        if (totalToCc > RECIPIENT_THRESHOLD && externalCount > 0) {
+        // Check threshold: warn if EITHER:
+        // 1. >10 recipients AND at least 1 external
+        // 2. 5 or more external recipients (regardless of total)
+        const shouldWarn = (totalToCc > RECIPIENT_THRESHOLD && externalCount > 0) || (externalCount >= EXTERNAL_THRESHOLD);
+
+        if (shouldWarn) {
             // Show warning
             statusIcon.innerHTML = "&#9888;";
             statusIcon.className = "status-icon warning";
-            statusMessage.textContent = `Warning: ${totalToCc} recipients (${externalCount} external)`;
+
+            let warningText;
+            let notificationText;
+
+            if (externalCount >= EXTERNAL_THRESHOLD) {
+                warningText = `Warning: ${externalCount} external recipients`;
+                notificationText = `You have ${externalCount} external recipients in To/CC. Consider using BCC for external recipients to protect their privacy.`;
+            } else {
+                warningText = `Warning: ${totalToCc} recipients (${externalCount} external)`;
+                notificationText = `You have ${totalToCc} recipients (${externalCount} external) in To/CC. Consider using BCC for external recipients to protect their privacy.`;
+            }
+
+            statusMessage.textContent = warningText;
             warningBox.classList.remove("hidden");
 
             // Show external recipients info
@@ -104,10 +121,7 @@ async function checkRecipients() {
             externalWarning.classList.remove("hidden");
 
             // Show notification
-            showNotification(
-                "Privacy Warning",
-                `You have ${totalToCc} recipients (${externalCount} external) in To/CC. Consider using BCC for external recipients to protect their privacy.`
-            );
+            showNotification("Privacy Warning", notificationText);
         } else {
             // All good - either under threshold or all internal
             statusIcon.innerHTML = "&#10003;";

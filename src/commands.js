@@ -11,6 +11,7 @@ Office.onReady(function() {
 
 // Configuration
 var RECIPIENT_THRESHOLD = 10;
+var EXTERNAL_THRESHOLD = 5;
 var INTERNAL_DOMAINS = [
     "bcc.no",
     "bcc.media",
@@ -113,13 +114,24 @@ function onMessageSendHandler(event) {
                 }
             }
 
-            // Only prompt if BOTH conditions are met:
-            // 1. Total recipients > 10
-            // 2. At least one external recipient
-            if (allRecipients.length > RECIPIENT_THRESHOLD && externalCount > 0) {
+            // Prompt if EITHER condition is met:
+            // 1. Total recipients > 10 AND at least one external recipient
+            // 2. 5 or more external recipients (regardless of total)
+            var shouldWarn = false;
+            var warningMessage = "";
+
+            if (externalCount >= EXTERNAL_THRESHOLD) {
+                shouldWarn = true;
+                warningMessage = "You are sending to " + externalCount + " external recipients in To/CC fields. Consider moving external recipients to BCC to protect their email addresses from being shared with all recipients.";
+            } else if (allRecipients.length > RECIPIENT_THRESHOLD && externalCount > 0) {
+                shouldWarn = true;
+                warningMessage = "You are sending to " + allRecipients.length + " recipients (" + externalCount + " external) in To/CC fields. Consider moving some recipients to BCC to protect their email addresses from being shared with all recipients.";
+            }
+
+            if (shouldWarn) {
                 event.completed({
                     allowEvent: false,
-                    errorMessage: "You are sending to " + allRecipients.length + " recipients (" + externalCount + " external) in To/CC fields. Consider moving some recipients to BCC to protect their email addresses from being shared with all recipients."
+                    errorMessage: warningMessage
                 });
             } else {
                 event.completed({ allowEvent: true });
