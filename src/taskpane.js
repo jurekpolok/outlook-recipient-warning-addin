@@ -87,12 +87,17 @@ async function checkRecipients() {
     try {
         const item = Office.context.mailbox.item;
 
-        // Get all recipients (BCC may fail in some Outlook versions)
-        const [toRecipients, ccRecipients, bccRecipients] = await Promise.all([
-            getRecipientsAsync(item.to),
-            getRecipientsAsync(item.cc),
-            getRecipientsAsync(item.bcc).catch(() => [])
-        ]);
+        // Get all recipients (BCC may not be available in some Outlook versions)
+        const toRecipients = await getRecipientsAsync(item.to);
+        const ccRecipients = await getRecipientsAsync(item.cc);
+        let bccRecipients = [];
+        if (item.bcc) {
+            try {
+                bccRecipients = await getRecipientsAsync(item.bcc);
+            } catch (e) {
+                // BCC access not available, continue without it
+            }
+        }
 
         const toCount = toRecipients.length;
         const ccCount = ccRecipients.length;
