@@ -169,7 +169,7 @@ async function checkRecipients() {
     } catch (error) {
         statusIcon.innerHTML = "&#10007;";
         statusIcon.className = "status-icon error";
-        statusMessage.textContent = "Error checking recipients";
+        statusMessage.textContent = "Error: " + (error.message || error.name || "Unknown error");
         console.error("Error checking recipients:", error);
     }
 }
