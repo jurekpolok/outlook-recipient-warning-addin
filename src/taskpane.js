@@ -87,11 +87,11 @@ async function checkRecipients() {
     try {
         const item = Office.context.mailbox.item;
 
-        // Get all recipients
+        // Get all recipients (BCC may fail in some Outlook versions)
         const [toRecipients, ccRecipients, bccRecipients] = await Promise.all([
             getRecipientsAsync(item.to),
             getRecipientsAsync(item.cc),
-            getRecipientsAsync(item.bcc)
+            getRecipientsAsync(item.bcc).catch(() => [])
         ]);
 
         const toCount = toRecipients.length;
@@ -139,8 +139,8 @@ async function checkRecipients() {
             statusMessage.textContent = warningText;
             warningBox.classList.remove("hidden");
 
-            // Show external recipients info
-            document.getElementById("external-count").textContent = externalInToCc;
+            // Show external recipients info (total across To/CC/BCC)
+            document.getElementById("external-count").textContent = totalExternal;
             externalWarning.classList.remove("hidden");
 
             // Show notification
