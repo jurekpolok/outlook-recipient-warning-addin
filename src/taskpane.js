@@ -129,19 +129,24 @@ async function checkRecipients() {
 
             let warningText;
             let notificationText;
+            let warningBoxText;
 
             if (externalInToCc >= EXTERNAL_THRESHOLD) {
                 warningText = `Warning: ${externalInToCc} external recipients in To/CC`;
+                warningBoxText = `You have ${externalInToCc} external recipients in the To/CC fields. Their email addresses will be visible to all other recipients.`;
                 notificationText = `You have ${externalInToCc} external recipients in To/CC. Consider using BCC for external recipients to protect their privacy.`;
             } else if (externalInBcc > 0 && externalInToCc === 0) {
                 warningText = `Warning: ${totalToCc} addresses visible to external`;
+                warningBoxText = `External recipients in BCC will see all ${totalToCc} email addresses in the To/CC fields.`;
                 notificationText = `External recipients in BCC will see all ${totalToCc} email addresses in To/CC. Consider moving recipients to BCC to protect their addresses from external parties.`;
             } else {
                 warningText = `Warning: ${totalToCc} recipients (${externalInToCc} external)`;
+                warningBoxText = `You have ${totalToCc} recipients (${externalInToCc} external) in the To/CC fields. All email addresses will be visible to everyone.`;
                 notificationText = `You have ${totalToCc} recipients (${externalInToCc} external) in To/CC. Consider using BCC for external recipients to protect their privacy.`;
             }
 
             statusMessage.textContent = warningText;
+            document.getElementById("warning-text").textContent = warningBoxText;
             warningBox.classList.remove("hidden");
 
             // Show external recipients info (total across To/CC/BCC)
