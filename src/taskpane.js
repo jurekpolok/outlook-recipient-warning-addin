@@ -134,15 +134,15 @@ async function checkRecipients() {
             if (externalInToCc >= EXTERNAL_THRESHOLD) {
                 warningText = `Warning: ${externalInToCc} external recipients in To/CC`;
                 warningBoxText = `You have ${externalInToCc} external recipients in the To/CC fields. Their email addresses will be visible to all other recipients.`;
-                notificationText = `You have ${externalInToCc} external recipients in To/CC. Consider using BCC for external recipients to protect their privacy.`;
+                notificationText = `${externalInToCc} external in To/CC. Consider using BCC.`;
             } else if (externalInBcc > 0 && externalInToCc === 0) {
                 warningText = `Warning: ${totalToCc} addresses visible to external`;
                 warningBoxText = `External recipients in BCC will see all ${totalToCc} email addresses in the To/CC fields.`;
-                notificationText = `External recipients in BCC will see all ${totalToCc} email addresses in To/CC. Consider moving recipients to BCC to protect their addresses from external parties.`;
+                notificationText = `BCC externals will see ${totalToCc} To/CC addresses.`;
             } else {
                 warningText = `Warning: ${totalToCc} recipients (${externalInToCc} external)`;
                 warningBoxText = `You have ${totalToCc} recipients (${externalInToCc} external) in the To/CC fields. All email addresses will be visible to everyone.`;
-                notificationText = `You have ${totalToCc} recipients (${externalInToCc} external) in To/CC. Consider using BCC for external recipients to protect their privacy.`;
+                notificationText = `${totalToCc} recipients (${externalInToCc} external). Use BCC.`;
             }
 
             statusMessage.textContent = warningText;
