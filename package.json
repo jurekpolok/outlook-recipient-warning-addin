@@ -1,7 +1,7 @@
 {
   "name": "outlook-recipient-warning-addin",
-  "version": "2.4.0",
-  "description": "Outlook Add-in that warns users when adding more than 5 recipients and suggests using BCC for privacy",
+  "version": "2.5.0",
+  "description": "Outlook Add-in that warns users when adding more than 10 recipients and suggests using BCC for privacy",
   "main": "src/taskpane.js",
   "scripts": {
     "start": "npx http-server . -p 3000 --cors -S -C localhost.crt -K localhost.key",

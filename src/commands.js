@@ -1,5 +1,5 @@
 /*
- * Recipient Privacy Warning - Outlook Add-in v2.5.0
+ * Recipient Privacy Warning - Outlook Add-in v2.5.0.0
  * Warns when sending to more than 10 recipients AND at least one is external
  * ECMAScript 2016 compatible - no ternary, no ||, no async/await
  */
@@ -12,7 +12,7 @@ Office.onReady(function() {
 // Configuration
 var RECIPIENT_THRESHOLD = 10;
 var EXTERNAL_THRESHOLD = 5;
-var TIMEOUT_MS = 5000;
+var TIMEOUT_MS = 10000;
 var INTERNAL_DOMAINS = [
     "bcc.no",
     "bcc.media",
@@ -23,16 +23,21 @@ var INTERNAL_DOMAINS = [
 
 /**
  * Check if email is from an internal domain
+ * Returns false for empty/invalid emails (treat as external for safety)
  */
 function isInternalEmail(email) {
     if (!email) {
-        return true;
+        return false;
     }
     if (email.length === 0) {
-        return true;
+        return false;
     }
 
     var emailLower = email.toLowerCase().trim();
+    if (emailLower.length === 0) {
+        return false;
+    }
+
     var i;
     var domain;
     var atDomain;
@@ -66,30 +71,53 @@ function getEmailAddress(recipient) {
 }
 
 /**
+ * Count external recipients in an array
+ */
+function countExternalRecipients(recipients) {
+    var count = 0;
+    var i;
+    var email;
+
+    for (i = 0; i < recipients.length; i++) {
+        email = getEmailAddress(recipients[i]);
+        if (!isInternalEmail(email)) {
+            count = count + 1;
+        }
+    }
+    return count;
+}
+
+/**
  * Main handler for OnMessageSend event
  */
 function onMessageSendHandler(event) {
     var mailboxItem = Office.context.mailbox.item;
     var eventCompleted = false;
-
-    // Timeout wrapper - allow send after 5 seconds if something hangs
-    var timeoutId = setTimeout(function() {
-        if (!eventCompleted) {
-            eventCompleted = true;
-            event.completed({ allowEvent: true });
-        }
-    }, TIMEOUT_MS);
+    var timeoutId = null;
 
     /**
      * Safely complete the event (only once)
      */
     function completeEvent(options) {
-        if (!eventCompleted) {
-            eventCompleted = true;
+        if (eventCompleted) {
+            return;
+        }
+        eventCompleted = true;
+        if (timeoutId !== null) {
             clearTimeout(timeoutId);
+            timeoutId = null;
+        }
+        try {
             event.completed(options);
+        } catch (e) {
+            // Ignore errors if event already completed
         }
     }
+
+    // Timeout wrapper - allow send after 10 seconds if something hangs
+    timeoutId = setTimeout(function() {
+        completeEvent({ allowEvent: true });
+    }, TIMEOUT_MS);
 
     // Safety check for mailboxItem
     if (!mailboxItem) {
@@ -97,8 +125,13 @@ function onMessageSendHandler(event) {
         return;
     }
 
+    // Get To recipients
     mailboxItem.to.getAsync(function(toResult) {
         var toRecipients;
+
+        if (eventCompleted) {
+            return;
+        }
 
         if (toResult.status !== Office.AsyncResultStatus.Succeeded) {
             completeEvent({ allowEvent: true });
@@ -111,12 +144,13 @@ function onMessageSendHandler(event) {
             toRecipients = [];
         }
 
+        // Get CC recipients
         mailboxItem.cc.getAsync(function(ccResult) {
             var ccRecipients;
-            var allRecipients;
-            var externalCount;
-            var i;
-            var email;
+
+            if (eventCompleted) {
+                return;
+            }
 
             if (ccResult.status !== Office.AsyncResultStatus.Succeeded) {
                 completeEvent({ allowEvent: true });
@@ -129,40 +163,63 @@ function onMessageSendHandler(event) {
                 ccRecipients = [];
             }
 
-            allRecipients = toRecipients.concat(ccRecipients);
-            externalCount = 0;
+            // Get BCC recipients
+            mailboxItem.bcc.getAsync(function(bccResult) {
+                var bccRecipients;
+                var toCcRecipients;
+                var externalInToCc;
+                var externalInBcc;
+                var shouldWarn;
+                var warningMessage;
 
-            for (i = 0; i < allRecipients.length; i++) {
-                email = getEmailAddress(allRecipients[i]);
-                if (email) {
-                    if (!isInternalEmail(email)) {
-                        externalCount = externalCount + 1;
+                if (eventCompleted) {
+                    return;
+                }
+
+                if (bccResult.status !== Office.AsyncResultStatus.Succeeded) {
+                    completeEvent({ allowEvent: true });
+                    return;
+                }
+
+                if (bccResult.value) {
+                    bccRecipients = bccResult.value;
+                } else {
+                    bccRecipients = [];
+                }
+
+                // Combine To and CC for threshold check
+                toCcRecipients = toRecipients.concat(ccRecipients);
+                externalInToCc = countExternalRecipients(toCcRecipients);
+                externalInBcc = countExternalRecipients(bccRecipients);
+                var totalExternal = externalInToCc + externalInBcc;
+
+                // Prompt if EITHER condition is met:
+                // 1. Total To/CC recipients > 10 AND at least one external ANYWHERE (To/CC/BCC)
+                // 2. 5 or more external recipients in To/CC (regardless of total)
+                shouldWarn = false;
+                warningMessage = "";
+
+                if (externalInToCc >= EXTERNAL_THRESHOLD) {
+                    shouldWarn = true;
+                    warningMessage = "You are sending to " + externalInToCc + " external recipients in To/CC fields. Consider moving external recipients to BCC to protect their email addresses from being shared with all recipients.";
+                } else if (toCcRecipients.length > RECIPIENT_THRESHOLD && totalExternal > 0) {
+                    shouldWarn = true;
+                    if (externalInBcc > 0 && externalInToCc === 0) {
+                        warningMessage = "You are sending to " + toCcRecipients.length + " recipients in To/CC fields, and there are external recipients in BCC. Consider moving some To/CC recipients to BCC to protect their email addresses.";
+                    } else {
+                        warningMessage = "You are sending to " + toCcRecipients.length + " recipients (" + externalInToCc + " external) in To/CC fields. Consider moving some recipients to BCC to protect their email addresses from being shared with all recipients.";
                     }
                 }
-            }
 
-            // Prompt if EITHER condition is met:
-            // 1. Total recipients > 10 AND at least one external recipient
-            // 2. 5 or more external recipients (regardless of total)
-            var shouldWarn = false;
-            var warningMessage = "";
-
-            if (externalCount >= EXTERNAL_THRESHOLD) {
-                shouldWarn = true;
-                warningMessage = "You are sending to " + externalCount + " external recipients in To/CC fields. Consider moving external recipients to BCC to protect their email addresses from being shared with all recipients.";
-            } else if (allRecipients.length > RECIPIENT_THRESHOLD && externalCount > 0) {
-                shouldWarn = true;
-                warningMessage = "You are sending to " + allRecipients.length + " recipients (" + externalCount + " external) in To/CC fields. Consider moving some recipients to BCC to protect their email addresses from being shared with all recipients.";
-            }
-
-            if (shouldWarn) {
-                completeEvent({
-                    allowEvent: false,
-                    errorMessage: warningMessage
-                });
-            } else {
-                completeEvent({ allowEvent: true });
-            }
+                if (shouldWarn) {
+                    completeEvent({
+                        allowEvent: false,
+                        errorMessage: warningMessage
+                    });
+                } else {
+                    completeEvent({ allowEvent: true });
+                }
+            });
         });
     });
 }

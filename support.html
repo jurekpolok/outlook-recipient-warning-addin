@@ -43,7 +43,12 @@
 
     <div class="faq">
         <h3>What triggers the warning?</h3>
-        <p>The add-in warns you when you have more than 5 recipients in the To and CC fields combined. This threshold helps identify mass emails that might benefit from using BCC.</p>
+        <p>The add-in warns you in two situations:</p>
+        <ul>
+            <li>When you have more than 10 recipients in To/CC and at least one external recipient anywhere (To, CC, or BCC)</li>
+            <li>When you have 5 or more external recipients in To/CC (regardless of total count)</li>
+        </ul>
+        <p>This helps protect both internal and external email addresses from unnecessary exposure when sending to external parties.</p>
     </div>
 
     <div class="faq">

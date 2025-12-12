@@ -3,8 +3,8 @@
 // Configuration
 const RECIPIENT_THRESHOLD = 10;
 const EXTERNAL_THRESHOLD = 5;
+const DEBOUNCE_MS = 300;
 const INTERNAL_DOMAINS = [
-    // Add your organization's internal email domains here
     "bcc.no",
     "bcc.media",
     "brunstad.tv",
@@ -12,16 +12,32 @@ const INTERNAL_DOMAINS = [
     "bcc-crew.com"
 ];
 
+// Debounce timer
+let debounceTimer = null;
+
+/**
+ * Debounced version of checkRecipients to prevent excessive API calls
+ */
+function debouncedCheckRecipients() {
+    if (debounceTimer) {
+        clearTimeout(debounceTimer);
+    }
+    debounceTimer = setTimeout(function() {
+        debounceTimer = null;
+        checkRecipients();
+    }, DEBOUNCE_MS);
+}
+
 Office.onReady((info) => {
     if (info.host === Office.HostType.Outlook) {
         // Initial check
         checkRecipients();
 
-        // Set up event listener for recipient changes - updates automatically
+        // Set up event listener for recipient changes - updates automatically with debouncing
         if (Office.context.mailbox.item.addHandlerAsync) {
             Office.context.mailbox.item.addHandlerAsync(
                 Office.EventType.RecipientsChanged,
-                checkRecipients
+                debouncedCheckRecipients
             );
         }
     }
@@ -29,12 +45,14 @@ Office.onReady((info) => {
 
 /**
  * Check if an email address is external (not from internal domains)
+ * Returns true for empty/invalid emails (treat as external for safety)
  * @param {string} email - Email address to check
  * @returns {boolean} - True if external
  */
 function isExternalEmail(email) {
-    if (!email) return false;
-    const emailLower = email.toLowerCase();
+    if (!email) return true;
+    const emailLower = email.toLowerCase().trim();
+    if (emailLower.length === 0) return true;
     return !INTERNAL_DOMAINS.some(domain => emailLower.endsWith("@" + domain.toLowerCase()));
 }
 
@@ -44,6 +62,7 @@ function isExternalEmail(email) {
  * @returns {string} - Email address
  */
 function getEmailAddress(recipient) {
+    if (!recipient) return "";
     return recipient.emailAddress || recipient.address || "";
 }
 
@@ -80,10 +99,11 @@ async function checkRecipients() {
         const bccCount = bccRecipients.length;
         const totalToCc = toCount + ccCount;
 
-        // Count external recipients in To and CC
+        // Count external recipients in To/CC and BCC
         const allToCcRecipients = [...toRecipients, ...ccRecipients];
-        const externalRecipients = allToCcRecipients.filter(r => isExternalEmail(getEmailAddress(r)));
-        const externalCount = externalRecipients.length;
+        const externalInToCc = allToCcRecipients.filter(r => isExternalEmail(getEmailAddress(r))).length;
+        const externalInBcc = bccRecipients.filter(r => isExternalEmail(getEmailAddress(r))).length;
+        const totalExternal = externalInToCc + externalInBcc;
 
         // Update counts display
         document.getElementById("to-count").textContent = toCount;
@@ -93,9 +113,9 @@ async function checkRecipients() {
         recipientDetails.classList.remove("hidden");
 
         // Check threshold: warn if EITHER:
-        // 1. >10 recipients AND at least 1 external
-        // 2. 5 or more external recipients (regardless of total)
-        const shouldWarn = (totalToCc > RECIPIENT_THRESHOLD && externalCount > 0) || (externalCount >= EXTERNAL_THRESHOLD);
+        // 1. >10 recipients in To/CC AND at least 1 external ANYWHERE (To/CC/BCC)
+        // 2. 5 or more external recipients in To/CC (regardless of total)
+        const shouldWarn = (totalToCc > RECIPIENT_THRESHOLD && totalExternal > 0) || (externalInToCc >= EXTERNAL_THRESHOLD);
 
         if (shouldWarn) {
             // Show warning
@@ -105,25 +125,28 @@ async function checkRecipients() {
             let warningText;
             let notificationText;
 
-            if (externalCount >= EXTERNAL_THRESHOLD) {
-                warningText = `Warning: ${externalCount} external recipients`;
-                notificationText = `You have ${externalCount} external recipients in To/CC. Consider using BCC for external recipients to protect their privacy.`;
+            if (externalInToCc >= EXTERNAL_THRESHOLD) {
+                warningText = `Warning: ${externalInToCc} external recipients in To/CC`;
+                notificationText = `You have ${externalInToCc} external recipients in To/CC. Consider using BCC for external recipients to protect their privacy.`;
+            } else if (externalInBcc > 0 && externalInToCc === 0) {
+                warningText = `Warning: ${totalToCc} recipients with external in BCC`;
+                notificationText = `You have ${totalToCc} recipients in To/CC and external recipients in BCC. Consider moving some To/CC recipients to BCC to protect their addresses.`;
             } else {
-                warningText = `Warning: ${totalToCc} recipients (${externalCount} external)`;
-                notificationText = `You have ${totalToCc} recipients (${externalCount} external) in To/CC. Consider using BCC for external recipients to protect their privacy.`;
+                warningText = `Warning: ${totalToCc} recipients (${externalInToCc} external)`;
+                notificationText = `You have ${totalToCc} recipients (${externalInToCc} external) in To/CC. Consider using BCC for external recipients to protect their privacy.`;
             }
 
             statusMessage.textContent = warningText;
             warningBox.classList.remove("hidden");
 
             // Show external recipients info
-            document.getElementById("external-count").textContent = externalCount;
+            document.getElementById("external-count").textContent = externalInToCc;
             externalWarning.classList.remove("hidden");
 
             // Show notification
             showNotification("Privacy Warning", notificationText);
         } else {
-            // All good - either under threshold or all internal
+            // All good - either under threshold or no external anywhere
             statusIcon.innerHTML = "&#10003;";
             statusIcon.className = "status-icon ok";
             if (totalToCc > RECIPIENT_THRESHOLD) {
