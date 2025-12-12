@@ -129,8 +129,8 @@ async function checkRecipients() {
                 warningText = `Warning: ${externalInToCc} external recipients in To/CC`;
                 notificationText = `You have ${externalInToCc} external recipients in To/CC. Consider using BCC for external recipients to protect their privacy.`;
             } else if (externalInBcc > 0 && externalInToCc === 0) {
-                warningText = `Warning: ${totalToCc} recipients with external in BCC`;
-                notificationText = `You have ${totalToCc} recipients in To/CC and external recipients in BCC. Consider moving some To/CC recipients to BCC to protect their addresses.`;
+                warningText = `Warning: ${totalToCc} addresses visible to external`;
+                notificationText = `External recipients in BCC will see all ${totalToCc} email addresses in To/CC. Consider moving recipients to BCC to protect their addresses from external parties.`;
             } else {
                 warningText = `Warning: ${totalToCc} recipients (${externalInToCc} external)`;
                 notificationText = `You have ${totalToCc} recipients (${externalInToCc} external) in To/CC. Consider using BCC for external recipients to protect their privacy.`;

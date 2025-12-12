@@ -205,7 +205,7 @@ function onMessageSendHandler(event) {
                 } else if (toCcRecipients.length > RECIPIENT_THRESHOLD && totalExternal > 0) {
                     shouldWarn = true;
                     if (externalInBcc > 0 && externalInToCc === 0) {
-                        warningMessage = "You are sending to " + toCcRecipients.length + " recipients in To/CC fields, and there are external recipients in BCC. Consider moving some To/CC recipients to BCC to protect their email addresses.";
+                        warningMessage = "External recipients in BCC will see all " + toCcRecipients.length + " email addresses in To/CC. Consider moving recipients to BCC to protect their addresses from external parties.";
                     } else {
                         warningMessage = "You are sending to " + toCcRecipients.length + " recipients (" + externalInToCc + " external) in To/CC fields. Consider moving some recipients to BCC to protect their email addresses from being shared with all recipients.";
                     }
