@@ -1,6 +1,6 @@
 {
   "name": "outlook-recipient-warning-addin",
-  "version": "1.0.0",
+  "version": "2.4.0",
   "description": "Outlook Add-in that warns users when adding more than 5 recipients and suggests using BCC for privacy",
   "main": "src/taskpane.js",
   "scripts": {
