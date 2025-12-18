@@ -6,7 +6,8 @@
 
 // Call Office.onReady to satisfy the Office.js requirement
 Office.onReady(function() {
-    // Intentionally empty - event handlers don't need initialization here
+    // Initialize telemetry (fail-safe)
+    try { Telemetry.initialize(); } catch (e) { /* ignore */ }
 });
 
 // Configuration
@@ -116,6 +117,7 @@ function onMessageSendHandler(event) {
 
     // Timeout wrapper - allow send after 10 seconds if something hangs
     timeoutId = setTimeout(function() {
+        try { Telemetry.trackEvent("SendTimeout", { timeoutMs: String(TIMEOUT_MS) }); } catch (e) { /* ignore */ }
         completeEvent({ allowEvent: true });
     }, TIMEOUT_MS);
 
@@ -212,11 +214,34 @@ function onMessageSendHandler(event) {
                 }
 
                 if (shouldWarn) {
+                    // Track send blocked
+                    try {
+                        var blockReason = "RecipientThreshold";
+                        if (externalInToCc >= EXTERNAL_THRESHOLD) {
+                            blockReason = "ExternalThreshold";
+                        }
+                        Telemetry.trackEvent("SendBlocked", {
+                            reason: blockReason,
+                            toCcCount: String(toCcRecipients.length),
+                            externalInToCc: String(externalInToCc),
+                            externalInBcc: String(externalInBcc)
+                        });
+                    } catch (e) { /* ignore */ }
+
                     completeEvent({
                         allowEvent: false,
                         errorMessage: warningMessage
                     });
                 } else {
+                    // Track send allowed
+                    try {
+                        Telemetry.trackEvent("SendAllowed", {
+                            toCcCount: String(toCcRecipients.length),
+                            externalInToCc: String(externalInToCc),
+                            externalInBcc: String(externalInBcc)
+                        });
+                    } catch (e) { /* ignore */ }
+
                     completeEvent({ allowEvent: true });
                 }
             });

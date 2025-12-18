@@ -29,7 +29,13 @@ function debouncedCheckRecipients() {
 }
 
 Office.onReady((info) => {
+    // Initialize telemetry (fail-safe)
+    try { Telemetry.initialize(); } catch (e) { /* ignore */ }
+
     if (info.host === Office.HostType.Outlook) {
+        // Track task pane opened
+        try { Telemetry.trackPageView("TaskPane"); } catch (e) { /* ignore */ }
+
         // Initial check
         checkRecipients();
 
@@ -155,6 +161,16 @@ async function checkRecipients() {
 
             // Show notification
             showNotification("Privacy Warning", notificationText);
+
+            // Track warning shown
+            try {
+                Telemetry.trackEvent("WarningShown", {
+                    warningType: externalInToCc >= EXTERNAL_THRESHOLD ? "ExternalThreshold" : "RecipientThreshold",
+                    externalInToCc: String(externalInToCc),
+                    externalInBcc: String(externalInBcc),
+                    totalToCc: String(totalToCc)
+                });
+            } catch (e) { /* ignore */ }
         } else {
             // All good - either under threshold or no external anywhere
             statusIcon.innerHTML = "&#10003;";
@@ -164,6 +180,14 @@ async function checkRecipients() {
             } else {
                 statusMessage.textContent = `${totalToCc} recipient(s) in To/CC - OK`;
             }
+
+            // Track check passed
+            try {
+                Telemetry.trackEvent("CheckPassed", {
+                    totalToCc: String(totalToCc),
+                    externalCount: String(totalExternal)
+                });
+            } catch (e) { /* ignore */ }
         }
 
     } catch (error) {
@@ -171,6 +195,11 @@ async function checkRecipients() {
         statusIcon.className = "status-icon error";
         statusMessage.textContent = "Error: " + (error.message || error.name || "Unknown error");
         console.error("Error checking recipients:", error);
+
+        // Track error
+        try {
+            Telemetry.trackException(error, { context: "checkRecipients" });
+        } catch (e) { /* ignore */ }
     }
 }
 
