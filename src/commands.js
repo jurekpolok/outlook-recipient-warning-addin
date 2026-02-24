@@ -115,10 +115,13 @@ function onMessageSendHandler(event) {
         }
     }
 
-    // Timeout wrapper - allow send after 10 seconds if something hangs
+    // Timeout wrapper - warn user and allow send after timeout
     timeoutId = setTimeout(function() {
         try { Telemetry.trackEvent("SendTimeout", { timeoutMs: String(TIMEOUT_MS) }); } catch (e) { /* ignore */ }
-        completeEvent({ allowEvent: true });
+        completeEvent({
+            allowEvent: false,
+            errorMessage: "The recipient privacy check timed out. If this keeps happening, please restart Outlook to restore normal functionality. Click 'Send Anyway' to proceed."
+        });
     }, TIMEOUT_MS);
 
     // Safety check for mailboxItem
