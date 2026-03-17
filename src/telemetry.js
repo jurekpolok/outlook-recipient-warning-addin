@@ -10,6 +10,7 @@ var Telemetry = (function() {
 
     var appInsights = null;
     var isInitialized = false;
+    var pendingExceptions = [];
     var CONNECTION_STRING = "InstrumentationKey=8fd46d6e-1a20-464a-9038-ac0998e1b79c;IngestionEndpoint=https://norwayeast-0.in.applicationinsights.azure.com/;LiveEndpoint=https://norwayeast.livediagnostics.monitor.azure.com/;ApplicationId=d37df70d-8612-4476-adab-c45cfd64d749";
 
     /**
@@ -50,6 +51,18 @@ var Telemetry = (function() {
                 });
 
                 isInitialized = true;
+
+                // Flush any exceptions that occurred before SDK was ready
+                var i;
+                for (i = 0; i < pendingExceptions.length; i++) {
+                    try {
+                        appInsights.trackException({
+                            exception: pendingExceptions[i].error,
+                            properties: pendingExceptions[i].properties
+                        });
+                    } catch (e) { /* ignore */ }
+                }
+                pendingExceptions = [];
             }
         } catch (e) {
             // Silent fail - telemetry should never break the add-in
@@ -85,6 +98,7 @@ var Telemetry = (function() {
     function trackException(error, properties) {
         try {
             if (!isInitialized || !appInsights) {
+                pendingExceptions.push({ error: error, properties: properties });
                 return;
             }
             appInsights.trackException({

@@ -7,7 +7,8 @@
     <link rel="stylesheet" href="taskpane.css">
     <script src="https://appsforoffice.microsoft.com/lib/1.1/hosted/office.js"></script>
     <!-- Application Insights SDK (async to prevent blocking if CDN is unreachable) -->
-    <script src="https://js.monitor.azure.com/scripts/b/ai.3.gbl.min.js" async></script>
+    <!-- onload triggers Telemetry.initialize() so exceptions buffered before SDK loads are flushed -->
+    <script src="https://js.monitor.azure.com/scripts/b/ai.3.gbl.min.js" async onload="try{Telemetry.initialize();}catch(e){}"></script>
     <script src="telemetry.js"></script>
 </head>
 <body>
