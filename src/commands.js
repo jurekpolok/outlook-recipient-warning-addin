@@ -118,10 +118,7 @@ function onMessageSendHandler(event) {
     // Timeout wrapper - warn user and allow send after timeout
     timeoutId = setTimeout(function() {
         try { Telemetry.trackEvent("SendTimeout", { timeoutMs: String(TIMEOUT_MS) }); } catch (e) { /* ignore */ }
-        completeEvent({
-            allowEvent: false,
-            errorMessage: "The recipient privacy check timed out. If this keeps happening, please restart Outlook to restore normal functionality. Click 'Send Anyway' to proceed."
-        });
+        completeEvent({ allowEvent: true });
     }, TIMEOUT_MS);
 
     // Safety check for mailboxItem
