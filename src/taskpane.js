@@ -93,6 +93,13 @@ async function checkRecipients() {
     try {
         const item = Office.context.mailbox.item;
 
+        if (!item) {
+            statusIcon.innerHTML = "&#8987;";
+            statusIcon.className = "status-icon loading";
+            statusMessage.textContent = "Unable to load recipients. Please close and reopen this panel.";
+            return;
+        }
+
         // Get all recipients (BCC may not be available in some Outlook versions)
         const toRecipients = await getRecipientsAsync(item.to);
         const ccRecipients = await getRecipientsAsync(item.cc);
@@ -227,7 +234,7 @@ function getRecipientsAsync(recipientField) {
  */
 function showNotification(title, message) {
     // Use Office notification if available
-    if (Office.context.mailbox.item.notificationMessages) {
+    if (Office.context.mailbox.item && Office.context.mailbox.item.notificationMessages) {
         Office.context.mailbox.item.notificationMessages.replaceAsync(
             "recipientWarning",
             {

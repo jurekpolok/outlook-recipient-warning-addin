@@ -44,7 +44,7 @@ var Telemetry = (function() {
                 appInsights.addTelemetryInitializer(function(envelope) {
                     // Add custom properties to all telemetry
                     if (envelope.data) {
-                        envelope.data.addinVersion = "2.5.1.0";
+                        envelope.data.addinVersion = "2.5.2.0";
                         envelope.data.addinName = "RecipientPrivacyWarning";
                     }
                     return true;
